@@ -1,0 +1,10 @@
+agreeable_ep1/voices/*.mp3
+agreeable_ep1/sfx/*.mp3
+agreeable_ep1/music/*.mp3
+agreeable_ep1/build/
+agreeable_ep1/episode_01.mp3
+
+__pycache__/
+*.pyc
+.venv/
+.env
