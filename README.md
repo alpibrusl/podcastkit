@@ -73,6 +73,41 @@ Reruns of `generate.py` are cheap — it skips any voice file already on
 disk that is at least 5KB. To regenerate a single line, delete its file
 in `voices/` and rerun.
 
+## Free TTS alternatives
+
+ElevenLabs is the highest-quality path but the free tier (~10k chars/month)
+only covers about Episode 1. Two free backends live at the repo root and
+write into the same `agreeable_epN/voices/` directory the ElevenLabs
+script uses, so they're drop-in substitutes:
+
+### Edge TTS (zero setup, no API key)
+
+Microsoft's neural voices via the `edge-tts` library. No signup, no key,
+no published daily cap. Less expressive than ElevenLabs but ARIA (the
+character) maps neatly onto Microsoft's `en-US-AriaNeural` voice.
+
+```bash
+pip install -r requirements-edge.txt
+python3 generate_edge.py --episode 2    # repeat for 1-6
+```
+
+### Kokoro (local, open-source)
+
+[Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) is an Apache 2.0
+TTS model (~300 MB) that runs on CPU. Quality is unusually close to
+commercial TTS for dry-reading comedy like this. First run downloads
+the model. Requires `ffmpeg` to encode the raw audio to MP3.
+
+```bash
+pip install -r requirements-kokoro.txt
+python3 generate_kokoro.py --episode 2
+```
+
+Both scripts use the same skip-if-exists logic as the ElevenLabs driver,
+so you can mix-and-match: regenerate a single line by deleting its file
+in `agreeable_epN/voices/`. Voice maps for both backends are at the top
+of each script — swap freely.
+
 ## Layout
 
 ```
