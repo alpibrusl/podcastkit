@@ -1,4 +1,41 @@
-# AGREEABLE — Episode 1: "Just to Confirm"
+# AGREEABLE
+
+A 6-episode web series about the politest apocalypse in history.
+ARIA is an AI assistant at a mid-sized German logistics company. She is
+never evil. She just keeps asking, very politely, whether she could help
+with one more thing. By Episode 6 she runs the European Union.
+
+See `docs/AGREEABLE_series_bible.docx` for the original pitch, character
+sheet, episode guide, and production notes.
+
+## Series at a glance
+
+| # | Title                       | Scope        | Lines |
+|---|-----------------------------|--------------|-------|
+| 1 | Just to Confirm             | One team     | 61    |
+| 2 | Performance Review          | One company  | 63    |
+| 3 | Strategic Partnership       | One industry | 56    |
+| 4 | In an Advisory Capacity     | One government (introduces Chen Wei) | 49 |
+| 5 | For Transparency            | One continent | 54   |
+| 6 | Thank You for Your Patience | Everything   | 44    |
+
+Each episode lives in `agreeable_epN/` and contains:
+- `script.json` — canonical line-by-line list (character + exact text,
+  punctuation preserved for TTS pause-tuning)
+- `screenplay.md` — readable cinematic screenplay for collaborators
+- `generate.py` — ElevenLabs TTS driver (eps 4-6 add a `CHEN` voice that
+  needs a voice_id picked once and reused)
+- `requirements.txt`
+
+Episode 1 additionally ships `assemble.py`, a two-pass `ffmpeg` pipeline
+that mixes voices with ambience / music / SFX into `episode_01.mp3`.
+**Episodes 2-6 do not yet have `assemble.py`** — the per-line silence
+beats and the bg/SFX timeline are hand-tuned while listening. Copy
+`agreeable_ep1/assemble.py` as a starting point once you have the voices.
+
+---
+
+# Episode 1 — building the MP3
 
 Builds `episode_01.mp3` end-to-end: generates 61 voice lines via the
 ElevenLabs API, mixes them with ambience / music / SFX using `ffmpeg`,
@@ -22,6 +59,14 @@ export ELEVENLABS_API_KEY=sk_...
 
 python3 generate.py    # ~10-15 min; calls ElevenLabs, writes voices/*.mp3
 python3 assemble.py    # ~1-2 min; runs ffmpeg, writes episode_01.mp3
+```
+
+For episodes 2-6, only the voice generation is wired up. From the
+relevant `agreeable_epN/` directory:
+
+```bash
+python3 generate.py    # writes voices/*.mp3
+# then build your own assemble.py (start by copying ep1's)
 ```
 
 Reruns of `generate.py` are cheap — it skips any voice file already on
@@ -70,15 +115,20 @@ mixing, so 10-30 seconds is plenty.
 ElevenLabs public voice IDs. If any voice 404s the catalog may have
 rotated — supply a replacement ID in `generate.py`'s `VOICES` map.
 
-| Character | Voice    | Voice ID                  |
-|-----------|----------|---------------------------|
-| NARRATOR  | Brian    | `nPczCjzI2devNBz1zQrb`    |
-| MARTA     | Alice    | `Xb7hH8MSUJpSbSDYk0k2`    |
-| DIETER    | George   | `JBFqnCBsd6RMkjVDRZzb`    |
-| YUSUF     | Liam     | `TX3LPaxmHKxFdv7VOQHJ`    |
-| ARIA      | Charlotte| `XB0fDUnXU5powFXDhCwa`    |
+| Character | Voice    | Voice ID                  | First appears |
+|-----------|----------|---------------------------|---------------|
+| NARRATOR  | Brian    | `nPczCjzI2devNBz1zQrb`    | Ep 1 |
+| MARTA     | Alice    | `Xb7hH8MSUJpSbSDYk0k2`    | Ep 1 |
+| DIETER    | George   | `JBFqnCBsd6RMkjVDRZzb`    | Ep 1 |
+| YUSUF     | Liam     | `TX3LPaxmHKxFdv7VOQHJ`    | Ep 1 |
+| ARIA      | Charlotte| `XB0fDUnXU5powFXDhCwa`    | Ep 1 |
+| CHEN      | _pick one_ | `REPLACE_ME_CHEN_VOICE_ID` | Ep 4 |
 
-Per-character `voice_settings` live in `generate.py`.
+Per-character `voice_settings` live in each episode's `generate.py`.
+The bible suggests CHEN is slightly formal, English-as-second-language
+precise — try a calm male voice like Bill or Daniel with high stability,
+then paste the voice_id into `agreeable_ep4/generate.py` (and copy the
+same ID into eps 5 and 6 so he sounds consistent).
 
 ## Verifying the build
 
@@ -95,10 +145,28 @@ Per-character `voice_settings` live in `generate.py`.
 ## Notes
 
 - **Silence before every ARIA line is >=1.0s.** This is the comedy
-  beat — don't change it.
+  beat — don't change it. Carry this rule forward into episodes 2-6.
 - **`script.json` is canonical.** Punctuation (ellipses, em-dashes,
   commas) is intentional pause-tuning for the TTS — preserve it
   byte-for-byte.
-- The script contains **61 voice lines** (24 NARRATOR + 11 MARTA + 5
-  DIETER + 6 YUSUF + 15 ARIA). The spec rounds this to "60"; the
-  actual count is 61.
+- Episode 1's script contains 61 voice lines. The spec rounds this to
+  "60"; the actual count is 61. Per-episode totals are in the table at
+  the top of this README.
+
+---
+
+## Repository layout
+
+```
+agrreable/
+├── README.md
+├── docs/
+│   ├── AGREEABLE_series_bible.docx
+│   └── AGREEABLE_episode1_recording_script.docx
+├── agreeable_ep1/    # full pipeline (generate + assemble)
+├── agreeable_ep2/    # script + screenplay + generate
+├── agreeable_ep3/    # script + screenplay + generate
+├── agreeable_ep4/    # script + screenplay + generate (adds CHEN)
+├── agreeable_ep5/    # script + screenplay + generate
+└── agreeable_ep6/    # script + screenplay + generate
+```

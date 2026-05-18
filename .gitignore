@@ -1,8 +1,8 @@
-agreeable_ep1/voices/*.mp3
-agreeable_ep1/sfx/*.mp3
-agreeable_ep1/music/*.mp3
-agreeable_ep1/build/
-agreeable_ep1/episode_01.mp3
+agreeable_ep*/voices/*.mp3
+agreeable_ep*/sfx/*.mp3
+agreeable_ep*/music/*.mp3
+agreeable_ep*/build/
+agreeable_ep*/episode_*.mp3
 
 __pycache__/
 *.pyc
