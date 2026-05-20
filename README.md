@@ -1,6 +1,6 @@
 # podcastkit
 
-CLI for producing audio dramas and podcasts: write a script, configure voices, run two commands.
+**Podcast as Code** — scripts are source, audio is output. Version your show, not your MP3s.
 
 ```
 podcastkit generate   # synthesize voice lines via TTS → voices/*.mp3
@@ -10,6 +10,16 @@ podcastkit assemble   # mix voices + music + SFX via ffmpeg → episode.mp3
 Supports four TTS backends (mix freely per character), a YAML-driven episode config, and a machine-readable JSON output mode for agent pipelines.
 
 > **Status:** Not on PyPI. Install directly from source (see below). This is a working tool extracted from a real production, not a maintained package — use it, fork it, adapt it.
+
+---
+
+## The concept
+
+A podcast produced with podcastkit is defined entirely in plain text files: a `script.json` with the lines, an `episode.yaml` with the voice cast and mix. The audio is derived from those files the same way a binary is derived from source code — you don't commit it, you build it.
+
+This means a show can be reproduced exactly, re-rendered in a different voice, translated line by line, forked at any point in the story, or audited word by word. The canonical form of the work is the script. The MP3 is a build artifact.
+
+The same pattern applies to any synthesized media. Audio is the current focus because the open-source tooling is mature — local TTS models like Kokoro produce usable results today with no API and no cost. Video and image synthesis are getting there. When they do, the model is the same: source files in, rendered media out, everything version-controlled, everything reproducible.
 
 ---
 
