@@ -9,17 +9,11 @@ podcastkit assemble   # mix voices + music + SFX via ffmpeg → episode.mp3
 
 Supports four TTS backends (mix freely per character), a YAML-driven episode config, and a machine-readable JSON output mode for agent pipelines.
 
+> **Status:** Not on PyPI. Install directly from source (see below). This is a working tool extracted from a real production, not a maintained package — use it, fork it, adapt it.
+
 ---
 
 ## Install
-
-```bash
-pip install 'podcastkit[kokoro]'           # Kokoro (local, free, recommended)
-pip install 'podcastkit[chatterbox]'       # + Chatterbox (local, voice cloning)
-pip install 'podcastkit[openai]'           # + OpenAI TTS
-pip install 'podcastkit[elevenlabs]'       # + ElevenLabs
-pip install 'podcastkit[kokoro,openai]'    # combine extras freely
-```
 
 Requires **Python 3.10+** and **ffmpeg** on `PATH`:
 
@@ -27,6 +21,30 @@ Requires **Python 3.10+** and **ffmpeg** on `PATH`:
 brew install ffmpeg        # macOS
 apt install ffmpeg         # Debian/Ubuntu
 winget install ffmpeg      # Windows
+```
+
+Clone and install in editable mode:
+
+```bash
+git clone https://github.com/alpibrusl/podcastkit.git
+cd podcastkit
+pip install -e '.[kokoro]'           # Kokoro (local, free, recommended)
+```
+
+Install only what you need:
+
+```bash
+pip install -e '.[kokoro]'           # Kokoro TTS
+pip install -e '.[chatterbox]'       # Chatterbox (local, voice cloning)
+pip install -e '.[openai]'           # OpenAI TTS
+pip install -e '.[elevenlabs]'       # ElevenLabs
+pip install -e '.[kokoro,openai]'    # combine freely
+```
+
+Or install directly without cloning (no editable mode):
+
+```bash
+pip install 'git+https://github.com/alpibrusl/podcastkit.git[kokoro]'
 ```
 
 ---
@@ -108,10 +126,10 @@ sfx_hits:
 
 | Backend | Key needed | Quality | Notes |
 |---------|-----------|---------|-------|
-| `kokoro` | None | Good | Local ~300MB model; `pip install 'podcastkit[kokoro]'` |
-| `chatterbox` | None | Good | Local ~500MB model; voice cloning; `pip install 'podcastkit[chatterbox]'` |
-| `openai` | `OPENAI_API_KEY` | Very good | `tts-1` or `tts-1-hd` |
-| `elevenlabs` | `ELEVENLABS_API_KEY` | Highest | Free tier ~10k chars/month |
+| `kokoro` | None | Good | Local ~300 MB model; Apache 2.0 |
+| `chatterbox` | None | Good | Local ~500 MB model; voice cloning; Apache 2.0 |
+| `openai` | `OPENAI_API_KEY` | Very good | `tts-1` or `tts-1-hd`; commercial API |
+| `elevenlabs` | `ELEVENLABS_API_KEY` | Highest | Free tier ~10k chars/month; commercial API |
 
 Backends are per-character — mix freely. Kokoro and Chatterbox run offline with no ongoing cost.
 
@@ -215,7 +233,27 @@ ffmpeg -i episode_01.mp3 \
 
 ## Example project
 
-**AGREEABLE** — a 6-episode audio drama about the politest AI takeover in history — is the project that this pipeline was extracted from. It also includes **NOTED**, a 24-episode anthology of four independent series. All audio was generated with Kokoro. Scripts, voice cast, and production scripts are at [`../agrreable/`](../agrreable/).
+**[NOTED](https://github.com/alpibrusl/noted)** — AGREEABLE and its 24-episode Season 2 anthology — is the project this pipeline was extracted from. All 24 episodes were produced with this tool using Kokoro as the TTS backend. Scripts, voice assignments, and production scripts are at [github.com/alpibrusl/noted](https://github.com/alpibrusl/noted).
+
+---
+
+## Technology disclosure
+
+This project is built on top of the following tools and models. Using it means using them — their licenses, limitations, and terms apply.
+
+**Audio synthesis**
+- [Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) — open-source TTS model, Apache 2.0. Runs locally. Outputs are yours to use freely.
+- [Chatterbox](https://github.com/resemble-ai/chatterbox) — open-source TTS with voice cloning, Apache 2.0. Runs locally.
+- [OpenAI TTS](https://platform.openai.com/docs/guides/text-to-speech) — commercial API. Outputs governed by OpenAI's terms of service.
+- [ElevenLabs](https://elevenlabs.io) — commercial API. Outputs governed by ElevenLabs' terms of service.
+
+**Audio assembly**
+- [ffmpeg](https://ffmpeg.org) — LGPL 2.1+ / GPL 2+. The heavy lifting for all audio mixing and encoding.
+
+**Script writing (optional, `podcastkit write`)**
+- [Claude](https://anthropic.com) (Anthropic), [GPT-4](https://openai.com) (OpenAI), [Ollama](https://ollama.com) (local) — LLM backends for generating series bibles and episode scripts. Commercial APIs where applicable; Ollama runs locally. Outputs are AI-generated text; review and edit before production.
+
+**What this means in practice:** if you use only Kokoro or Chatterbox with Ollama for writing, the entire pipeline runs locally with no external services and no API costs. All components in that path are open-source.
 
 ---
 
@@ -234,3 +272,9 @@ my-show/
 └── episode_02/
     └── ...
 ```
+
+---
+
+## License
+
+[EUPL-1.2](https://eupl.eu/1.2/en/) — European Union Public Licence, a copyleft license compatible with GPL, AGPL, and MPL.
