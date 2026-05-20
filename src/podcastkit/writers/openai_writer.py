@@ -22,8 +22,7 @@ class OpenAIWriter(Writer):
         api_key = os.environ.get("OPENAI_API_KEY")
         if not api_key:
             raise RuntimeError(
-                "OPENAI_API_KEY is not set. "
-                "Export it with: export OPENAI_API_KEY=sk-..."
+                "OPENAI_API_KEY is not set. Export it with: export OPENAI_API_KEY=sk-..."
             )
 
         client = openai.OpenAI(api_key=api_key)

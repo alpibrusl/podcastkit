@@ -8,7 +8,6 @@ import time
 from enum import Enum
 from typing import Any
 
-
 VERSION = "0.1.0"
 
 

@@ -62,11 +62,13 @@ def normalize_script(entries: list[dict]) -> list[dict]:
         text = str(raw["text"]).strip()
         prefix = _char_prefix(character)
         counters[prefix] = counters.get(prefix, 0) + 1
-        result.append({
-            "id": f"{prefix}_{counters[prefix]:02d}",
-            "character": character,
-            "text": text,
-        })
+        result.append(
+            {
+                "id": f"{prefix}_{counters[prefix]:02d}",
+                "character": character,
+                "text": text,
+            }
+        )
     return result
 
 
@@ -92,14 +94,7 @@ def derive_voices_stub(script: list[dict]) -> dict:
         char = entry["character"]
         if char not in seen:
             seen[char] = {
-                "backend": "elevenlabs",
+                "backend": "kokoro",
                 "voice_id": "REPLACE_ME",
-                "model_id": "eleven_multilingual_v2",
-                "settings": {
-                    "stability": 0.65,
-                    "similarity_boost": 0.75,
-                    "style": 0.0,
-                    "use_speaker_boost": True,
-                },
             }
     return seen

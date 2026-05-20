@@ -28,15 +28,14 @@ class OllamaWriter(Writer):
         }
         try:
             resp = requests.post(OLLAMA_URL, json=payload, timeout=300)
-        except requests.ConnectionError:
+        except requests.ConnectionError as exc:
             raise RuntimeError(
                 "Cannot connect to Ollama at localhost:11434. "
                 "Is Ollama running? Start it with: ollama serve"
-            )
+            ) from exc
         if resp.status_code == 404:
             raise RuntimeError(
-                f"Model '{self.model}' not found in Ollama. "
-                f"Pull it first: ollama pull {self.model}"
+                f"Model '{self.model}' not found in Ollama. Pull it first: ollama pull {self.model}"
             )
         resp.raise_for_status()
         return resp.json()["message"]["content"]

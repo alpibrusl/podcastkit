@@ -19,9 +19,27 @@ def write_mp3_from_pcm(audio: Any, sample_rate: int, dest: Path) -> None:
 
     pcm = (np.clip(audio, -1.0, 1.0) * 32767).astype(np.int16).tobytes()
     cmd = [
-        "ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
-        "-f", "s16le", "-ar", str(sample_rate), "-ac", "1", "-i", "pipe:0",
-        "-c:a", "libmp3lame", "-b:a", "192k", "-ar", "44100", "-ac", "2",
+        "ffmpeg",
+        "-y",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-f",
+        "s16le",
+        "-ar",
+        str(sample_rate),
+        "-ac",
+        "1",
+        "-i",
+        "pipe:0",
+        "-c:a",
+        "libmp3lame",
+        "-b:a",
+        "192k",
+        "-ar",
+        "44100",
+        "-ac",
+        "2",
         str(dest),
     ]
     subprocess.run(cmd, input=pcm, check=True)

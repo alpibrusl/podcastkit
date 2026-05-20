@@ -4,8 +4,8 @@ from pathlib import Path
 from typing import Any
 
 from ..config import VoiceConfig
-from .base import Backend
 from ._util import write_mp3_from_pcm
+from .base import Backend
 
 MIN_VALID_BYTES = 5 * 1024
 KOKORO_SAMPLE_RATE = 24000
@@ -24,8 +24,7 @@ def _get_pipeline(voice_name: str) -> Any:
         from kokoro import KPipeline
     except ImportError as exc:
         raise RuntimeError(
-            "Kokoro is not installed. Install the kokoro extra: "
-            "pip install 'podcastkit[kokoro]'"
+            "Kokoro is not installed. Install the kokoro extra: pip install 'podcastkit[kokoro]'"
         ) from exc
 
     lang = voice_name[0]  # 'a' for af_/am_, 'b' for bf_/bm_
@@ -48,8 +47,7 @@ class KokoroBackend(Backend):
             import numpy as np
         except ImportError as exc:
             raise RuntimeError(
-                "numpy is not installed. Install the kokoro extra: "
-                "pip install 'podcastkit[kokoro]'"
+                "numpy is not installed. Install the kokoro extra: pip install 'podcastkit[kokoro]'"
             ) from exc
 
         voice_name = voice.voice_id
@@ -58,14 +56,10 @@ class KokoroBackend(Backend):
         chunks = []
         for _, _, audio in pipeline(text, voice=voice_name):
             # Kokoro may return torch tensors — convert to numpy.
-            chunks.append(
-                audio.cpu().numpy() if hasattr(audio, "cpu") else np.asarray(audio)
-            )
+            chunks.append(audio.cpu().numpy() if hasattr(audio, "cpu") else np.asarray(audio))
 
         if not chunks:
-            raise RuntimeError(
-                f"Kokoro produced no audio for voice '{voice_name}': {text[:60]!r}"
-            )
+            raise RuntimeError(f"Kokoro produced no audio for voice '{voice_name}': {text[:60]!r}")
 
         dest.parent.mkdir(parents=True, exist_ok=True)
         write_mp3_from_pcm(np.concatenate(chunks), KOKORO_SAMPLE_RATE, dest)

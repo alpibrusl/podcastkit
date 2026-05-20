@@ -60,9 +60,7 @@ class ElevenLabsBackend(Backend):
                     )
                 return
             if resp.status_code == 401:
-                raise RuntimeError(
-                    "401 Unauthorized from ElevenLabs — check ELEVENLABS_API_KEY."
-                )
+                raise RuntimeError("401 Unauthorized from ElevenLabs — check ELEVENLABS_API_KEY.")
             if resp.status_code == 404:
                 raise RuntimeError(
                     f"404 from ElevenLabs for voice_id '{voice.voice_id}' — "

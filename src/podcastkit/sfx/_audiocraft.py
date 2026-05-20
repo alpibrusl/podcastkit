@@ -12,8 +12,8 @@ when audiocraft is installed.
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +26,7 @@ _TOKENS_PER_SECOND = 50
 def _device() -> str:
     try:
         import torch
+
         if torch.cuda.is_available():
             return "cuda"
         if torch.backends.mps.is_available():
@@ -55,6 +56,7 @@ def _load_musicgen(model_name: str, device: str):
 def _save_wav(audio_values, sample_rate: int, dest: Path) -> None:
     """Save a [channels, samples] tensor to a WAV file using stdlib wave + numpy."""
     import wave
+
     import numpy as np
 
     dest.parent.mkdir(parents=True, exist_ok=True)
@@ -91,6 +93,7 @@ def _run_musicgen(
     inputs = {k: v.to(effective_device) for k, v in inputs.items()}
 
     import torch
+
     with torch.no_grad():
         audio_values = model.generate(**inputs, max_new_tokens=max_new_tokens)
 
@@ -122,8 +125,9 @@ def generate_sfx(
     Uses MusicGen (transformers). For best SFX results keep duration ≤ 5s.
     Returns a dict with keys: path, duration_s, sample_rate, prompt, model, device.
     """
-    return _run_musicgen(prompt, dest, duration=duration, model_name=model_name,
-                         device=device, log=log)
+    return _run_musicgen(
+        prompt, dest, duration=duration, model_name=model_name, device=device, log=log
+    )
 
 
 def generate_music(
@@ -140,5 +144,6 @@ def generate_music(
     Uses MusicGen (transformers). Returns a dict with keys: path, duration_s,
     sample_rate, prompt, model, device.
     """
-    return _run_musicgen(prompt, dest, duration=duration, model_name=model_name,
-                         device=device, log=log)
+    return _run_musicgen(
+        prompt, dest, duration=duration, model_name=model_name, device=device, log=log
+    )

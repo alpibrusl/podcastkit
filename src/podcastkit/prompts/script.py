@@ -36,10 +36,10 @@ Return ONLY the JSON array.\
 SCRIPT_EXAMPLE = """
 Example of correct format (short excerpt):
 [
-  {"id": "narr_01", "character": "NARRATOR", "text": "A grey Tuesday morning. The open-plan office. Someone has already eaten someone else's lunch."},
+  {"id": "narr_01", "character": "NARRATOR", "text": "A grey Tuesday. The open-plan office."},
   {"id": "host_01", "character": "HOST", "text": "Right. So. Why are we here?"},
-  {"id": "aria_01", "character": "ARIA", "text": "Just to confirm... you did ask me to be here. Twice. I wanted to make sure."},
-  {"id": "narr_02", "character": "NARRATOR", "text": "Nobody answers. Someone refreshes their email."}
+  {"id": "aria_01", "character": "ARIA", "text": "Just to confirm... you did ask me to be here."},
+  {"id": "narr_02", "character": "NARRATOR", "text": "Nobody answers. Someone refreshes email."}
 ]
 """
 
@@ -53,11 +53,15 @@ def build_script_prompts(
 ) -> tuple[str, str]:
     """Return (system, user) prompts for episode script generation."""
     title_line = f": {title}" if title else ""
-    user = SCRIPT_USER.format(
-        bible=bible.strip(),
-        episode_num=episode_num,
-        title_line=title_line,
-        summary=summary.strip(),
-        target_lines=target_lines,
-    ) + "\n" + SCRIPT_EXAMPLE
+    user = (
+        SCRIPT_USER.format(
+            bible=bible.strip(),
+            episode_num=episode_num,
+            title_line=title_line,
+            summary=summary.strip(),
+            target_lines=target_lines,
+        )
+        + "\n"
+        + SCRIPT_EXAMPLE
+    )
     return SCRIPT_SYSTEM, user

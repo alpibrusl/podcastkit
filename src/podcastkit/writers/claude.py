@@ -22,8 +22,7 @@ class ClaudeWriter(Writer):
         api_key = os.environ.get("ANTHROPIC_API_KEY")
         if not api_key:
             raise RuntimeError(
-                "ANTHROPIC_API_KEY is not set. "
-                "Export it with: export ANTHROPIC_API_KEY=sk-ant-..."
+                "ANTHROPIC_API_KEY is not set. Export it with: export ANTHROPIC_API_KEY=sk-ant-..."
             )
 
         client = anthropic.Anthropic(api_key=api_key)

@@ -3,7 +3,6 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
-
 _TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
 
 

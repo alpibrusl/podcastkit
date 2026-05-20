@@ -27,6 +27,5 @@ def get_backend(name: str) -> Backend:
     if name == "openai":
         return OpenAIBackend()
     raise ValueError(
-        f"Unknown backend: {name!r}. "
-        f"Valid choices are: chatterbox, elevenlabs, kokoro, openai."
+        f"Unknown backend: {name!r}. Valid choices are: chatterbox, elevenlabs, kokoro, openai."
     )

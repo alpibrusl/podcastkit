@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Any, Literal
 
 from pydantic import BaseModel
@@ -8,9 +7,9 @@ from pydantic import BaseModel
 
 class VoiceConfig(BaseModel):
     backend: Literal["chatterbox", "elevenlabs", "kokoro", "openai"]
-    voice_id: str                       # ElevenLabs voice_id, Kokoro voice name, or OpenAI voice name
-    model_id: str = ""                  # ElevenLabs model_id; unused for others
-    settings: dict[str, Any] = {}      # ElevenLabs voice_settings; unused for others
+    voice_id: str  # ElevenLabs voice_id, Kokoro voice name, or OpenAI voice name
+    model_id: str = ""  # ElevenLabs model_id; unused for others
+    settings: dict[str, Any] = {}  # ElevenLabs voice_settings; unused for others
 
 
 class TimelineEntry(BaseModel):

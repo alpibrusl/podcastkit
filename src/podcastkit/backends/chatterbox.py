@@ -4,8 +4,8 @@ from pathlib import Path
 from typing import Any
 
 from ..config import VoiceConfig
-from .base import Backend
 from ._util import write_mp3_from_pcm
+from .base import Backend
 
 MIN_VALID_BYTES = 5 * 1024
 
@@ -21,12 +21,15 @@ def _get_model(model_type: str, device: str) -> Any:
     try:
         if model_type == "turbo":
             from chatterbox.tts_turbo import ChatterboxTurboTTS
+
             _models[key] = ChatterboxTurboTTS.from_pretrained(device=device)
         elif model_type == "multilingual":
             from chatterbox.tts_multilingual import ChatterboxMultilingualTTS
+
             _models[key] = ChatterboxMultilingualTTS.from_pretrained(device=device)
         else:
             from chatterbox.tts import ChatterboxTTS
+
             _models[key] = ChatterboxTTS.from_pretrained(device=device)
     except ImportError as exc:
         raise RuntimeError(

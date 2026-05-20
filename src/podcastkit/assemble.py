@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import contextlib
 import shutil
 import subprocess
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from .config import Anchor, EpisodeConfig
 
@@ -16,6 +18,7 @@ SAMPLE_RATE = 44100
 # ---------------------------------------------------------------------------
 # Small utilities
 # ---------------------------------------------------------------------------
+
 
 def db(x: float) -> float:
     """Convert dB to linear gain."""
@@ -34,18 +37,25 @@ def run(cmd: list[str]) -> subprocess.CompletedProcess[str]:
 
 def ffprobe_duration(path: Path) -> float:
     """Return the duration of an audio/video file in seconds via ffprobe."""
-    result = run([
-        "ffprobe", "-v", "error",
-        "-show_entries", "format=duration",
-        "-of", "default=noprint_wrappers=1:nokey=1",
-        str(path),
-    ])
+    result = run(
+        [
+            "ffprobe",
+            "-v",
+            "error",
+            "-show_entries",
+            "format=duration",
+            "-of",
+            "default=noprint_wrappers=1:nokey=1",
+            str(path),
+        ]
+    )
     return float(result.stdout.strip())
 
 
 # ---------------------------------------------------------------------------
 # Internal anchor data class (runtime, not config)
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class _LineAnchor:
@@ -68,6 +78,7 @@ def resolve_time(spec: Anchor, anchors: dict[str, _LineAnchor]) -> float:
 # ---------------------------------------------------------------------------
 # Pass 1 — voice track
 # ---------------------------------------------------------------------------
+
 
 def build_voices_track(
     episode_dir: Path,
@@ -99,15 +110,14 @@ def build_voices_track(
         voice_path = voices_dir / f"{line_id}.mp3"
 
         if not voice_path.exists():
-            sys.exit(
-                f"ERROR: missing voice file {voice_path}. "
-                f"Run 'podcastkit generate' first."
-            )
+            sys.exit(f"ERROR: missing voice file {voice_path}. Run 'podcastkit generate' first.")
 
         inputs += ["-f", "lavfi", "-t", f"{pre:.3f}", "-i", f"anullsrc=r={SAMPLE_RATE}:cl=stereo"]
-        sil_input_idx = next_in; next_in += 1
+        sil_input_idx = next_in
+        next_in += 1
         inputs += ["-i", str(voice_path)]
-        voice_input_idx = next_in; next_in += 1
+        voice_input_idx = next_in
+        next_in += 1
 
         sil_lbl = f"s{idx}"
         voice_lbl = f"v{idx}"
@@ -129,11 +139,15 @@ def build_voices_track(
 
     # Trailing silence pad
     inputs += [
-        "-f", "lavfi",
-        "-t", f"{TAIL_PAD_SEC:.3f}",
-        "-i", f"anullsrc=r={SAMPLE_RATE}:cl=stereo",
+        "-f",
+        "lavfi",
+        "-t",
+        f"{TAIL_PAD_SEC:.3f}",
+        "-i",
+        f"anullsrc=r={SAMPLE_RATE}:cl=stereo",
     ]
-    pad_idx = next_in; next_in += 1
+    pad_idx = next_in
+    next_in += 1
     pad_lbl = "pad"
     filter_parts.append(
         f"[{pad_idx}:a]aresample={SAMPLE_RATE},"
@@ -151,9 +165,12 @@ def build_voices_track(
     cmd = ["ffmpeg", "-y", "-hide_banner", "-loglevel", "error"]
     cmd += inputs
     cmd += [
-        "-filter_complex", filter_complex,
-        "-map", "[out]",
-        "-c:a", "pcm_s16le",
+        "-filter_complex",
+        filter_complex,
+        "-map",
+        "[out]",
+        "-c:a",
+        "pcm_s16le",
         str(voices_track),
     ]
     run(cmd)
@@ -169,6 +186,7 @@ def build_voices_track(
 # ---------------------------------------------------------------------------
 # Pass 2 — mix overlays
 # ---------------------------------------------------------------------------
+
 
 def mix_overlays(
     episode_dir: Path,
@@ -255,17 +273,23 @@ def mix_overlays(
     filter_complex = ";".join(filter_parts)
     if filter_parts:
         filter_complex += ";"
-    filter_complex += (
-        "".join(mix_labels)
-        + f"amix=inputs={n_mix}:duration=first:normalize=0[out]"
-    )
+    filter_complex += "".join(mix_labels) + f"amix=inputs={n_mix}:duration=first:normalize=0[out]"
 
     cmd = ["ffmpeg", "-y", "-hide_banner", "-loglevel", "error"]
     cmd += inputs
     cmd += [
-        "-filter_complex", filter_complex,
-        "-map", "[out]",
-        "-c:a", "libmp3lame", "-b:a", "192k", "-ar", str(SAMPLE_RATE), "-ac", "2",
+        "-filter_complex",
+        filter_complex,
+        "-map",
+        "[out]",
+        "-c:a",
+        "libmp3lame",
+        "-b:a",
+        "192k",
+        "-ar",
+        str(SAMPLE_RATE),
+        "-ac",
+        "2",
         str(output_path),
     ]
     run(cmd)
@@ -274,6 +298,7 @@ def mix_overlays(
 # ---------------------------------------------------------------------------
 # Verification
 # ---------------------------------------------------------------------------
+
 
 def verify(output_path: Path, log: Callable[..., None] = print) -> dict[str, Any]:
     """Return duration, size, and loudness info for the assembled output."""
@@ -293,9 +318,15 @@ def verify(output_path: Path, log: Callable[..., None] = print) -> dict[str, Any
     # Loudness summary (best-effort; ffmpeg reports numbers in stderr)
     proc = subprocess.run(
         [
-            "ffmpeg", "-hide_banner", "-i", str(output_path),
-            "-af", "loudnorm=print_format=summary",
-            "-f", "null", "-",
+            "ffmpeg",
+            "-hide_banner",
+            "-i",
+            str(output_path),
+            "-af",
+            "loudnorm=print_format=summary",
+            "-f",
+            "null",
+            "-",
         ],
         capture_output=True,
         text=True,
@@ -303,16 +334,12 @@ def verify(output_path: Path, log: Callable[..., None] = print) -> dict[str, Any
     for line in proc.stderr.splitlines():
         if "Input Integrated" in line:
             log(f"  {line.strip()}")
-            try:
+            with contextlib.suppress(ValueError, IndexError):
                 result["integrated_lufs"] = float(line.split()[-2])
-            except (ValueError, IndexError):
-                pass
         elif "Input True Peak" in line:
             log(f"  {line.strip()}")
-            try:
+            with contextlib.suppress(ValueError, IndexError):
                 result["true_peak_dbtp"] = float(line.split()[-2])
-            except (ValueError, IndexError):
-                pass
 
     return result
 
@@ -320,6 +347,7 @@ def verify(output_path: Path, log: Callable[..., None] = print) -> dict[str, Any
 # ---------------------------------------------------------------------------
 # Public entry point
 # ---------------------------------------------------------------------------
+
 
 def assemble(
     episode_dir: Path,
