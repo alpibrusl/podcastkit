@@ -906,6 +906,8 @@ def cmd_sfx_music(
         )
 
     if fmt == OutputFormat.text:
-        print(f"Music saved to {result['path']}  ({result['duration_s']}s @ {result['sample_rate']} Hz)")  # noqa: E501
+        print(
+            f"Music saved to {result['path']}  ({result['duration_s']}s @ {result['sample_rate']} Hz)"  # noqa: E501
+        )
     else:
         emit(success_envelope(cmd, result, start_time=t0), fmt)
