@@ -11,7 +11,6 @@ from podcastkit._script import (
     normalize_script,
 )
 
-
 # ---------------------------------------------------------------------------
 # extract_json
 # ---------------------------------------------------------------------------
@@ -37,7 +36,9 @@ def test_extract_json_fenced_no_lang():
 
 
 def test_extract_json_embedded_in_prose():
-    raw = 'Sure! Here is the script:\n[{"id": "c", "character": "Z", "text": "ok"}]\nHope that helps.'
+    raw = (
+        'Sure! Here is the script:\n[{"id": "c", "character": "Z", "text": "ok"}]\nHope that helps.'
+    )
     result = extract_json(raw)
     assert result[0]["text"] == "ok"
 
@@ -48,7 +49,7 @@ def test_extract_json_no_array_raises():
 
 
 def test_extract_json_invalid_json_raises():
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         extract_json("[{bad json}]")
 
 
@@ -127,9 +128,9 @@ def test_derive_timeline_ai_characters_get_longer_silence():
         {"id": "narr_02", "character": "NARRATOR", "text": "z"},
     ]
     result = derive_timeline(script, ai_characters={"ARIA"})
-    assert result[0]["pre_silence"] == 0.5   # NARRATOR — not AI
-    assert result[1]["pre_silence"] == 1.2   # ARIA — AI
-    assert result[2]["pre_silence"] == 0.5   # NARRATOR — not AI
+    assert result[0]["pre_silence"] == 0.5  # NARRATOR — not AI
+    assert result[1]["pre_silence"] == 1.2  # ARIA — AI
+    assert result[2]["pre_silence"] == 0.5  # NARRATOR — not AI
 
 
 def test_derive_timeline_empty_script():

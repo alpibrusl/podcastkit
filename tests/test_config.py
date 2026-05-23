@@ -7,7 +7,6 @@ from pydantic import ValidationError
 
 from podcastkit.config import EpisodeConfig, VoiceConfig
 
-
 MINIMAL_CONFIG = {
     "title": "Episode 1",
     "output": "episode_01.mp3",

@@ -50,6 +50,7 @@ class ChatterboxBackend(Backend):
                   "turbo" | "multilingual".
       settings  — optional generation knobs:
                     device:       "cuda" | "cpu"  (default: cuda if available)
+                    language_id:  ISO code (e.g. "es", "fr") — multilingual model only
                     exaggeration: 0.25-2.0  emotion intensity  (default 0.5)
                     cfg_weight:   0.0-1.0   pace control       (default 0.5)
                     temperature:  0.05-5.0  output consistency (default 0.8)
@@ -76,6 +77,9 @@ class ChatterboxBackend(Backend):
         kwargs: dict[str, Any] = {}
         if voice.voice_id:
             kwargs["audio_prompt_path"] = voice.voice_id
+        # language_id selects the target language for the multilingual model.
+        if model_type == "multilingual" and "language_id" in settings:
+            kwargs["language_id"] = settings["language_id"]
         for key in ("exaggeration", "cfg_weight", "temperature"):
             if key in settings:
                 kwargs[key] = settings[key]

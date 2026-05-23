@@ -6,10 +6,7 @@ import json
 import time
 from io import StringIO
 
-import pytest
-
 from podcastkit._output import OutputFormat, emit, error_envelope, success_envelope
-
 
 # ---------------------------------------------------------------------------
 # success_envelope
